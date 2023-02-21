@@ -4,8 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.explore_with_me.model.Stat;
+import ru.practicum.explore_with_me.dto.StatDto;
 import ru.practicum.explore_with_me.dto.ViewStats;
+import ru.practicum.explore_with_me.model.Stat;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -21,7 +22,8 @@ public class StatsService {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Transactional
-    public Stat create(Stat stat) {
+    public Stat create(StatDto statDto) {
+        Stat stat = StatsMapper.toStat(statDto);
         return repository.save(stat);
     }
 

@@ -1,6 +1,5 @@
 package ru.practicum.explore_with_me.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -25,7 +24,6 @@ public class Stat {
     private String uri;
     @Column(nullable = false)
     private String ip;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "time_stamp")
     private LocalDateTime timestamp;
 }

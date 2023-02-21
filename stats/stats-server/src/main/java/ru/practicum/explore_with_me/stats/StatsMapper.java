@@ -6,29 +6,16 @@ import ru.practicum.explore_with_me.dto.ViewStats;
 import ru.practicum.explore_with_me.model.Stat;
 import ru.practicum.explore_with_me.model.ViewStatsInt;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 @Component
 public class StatsMapper {
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-
     public static Stat toStat(StatDto statDto) {
-
         return Stat.builder()
-                .id(statDto.getId())
                 .app(statDto.getApp())
                 .uri(statDto.getUri())
                 .ip(statDto.getIp())
-                .timestamp(LocalDateTime.parse(statDto.getTimestamp(), formatter))
+                .timestamp(statDto.getTimestamp())
                 .build();
     }
-
-    public static StatDto toStatDto(Stat stat) {
-        return new StatDto(stat.getId(), stat.getApp(), stat.getUri(), stat.getIp(), stat.getTimestamp().toString());
-    }
-
 
     public static ViewStats toViewStats(ViewStatsInt viewStats) {
         return new ViewStats(viewStats.getApp(), viewStats.getUri(), viewStats.getHits());

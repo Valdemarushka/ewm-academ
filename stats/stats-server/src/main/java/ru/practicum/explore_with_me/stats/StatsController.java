@@ -3,7 +3,6 @@ package ru.practicum.explore_with_me.stats;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.explore_with_me.model.Stat;
 import ru.practicum.explore_with_me.dto.StatDto;
 import ru.practicum.explore_with_me.dto.ViewStats;
 
@@ -31,8 +30,8 @@ public class StatsController {
     }
 
     @PostMapping("/hit")
-    public StatDto addStat(@RequestBody Stat stat) {
-        log.info("Create statHit {}", stat);
-        return StatsMapper.toStatDto(statsService.create(stat));
+    public void addStat(@RequestBody StatDto statDto) {
+        log.info("Create statHit {}", statDto);
+        statsService.create(statDto);
     }
 }

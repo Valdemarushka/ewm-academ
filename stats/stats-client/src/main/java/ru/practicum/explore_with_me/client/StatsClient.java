@@ -4,20 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import ru.practicum.explore_with_me.model.Stat;
+import ru.practicum.explore_with_me.dto.StatDto;
 import ru.practicum.explore_with_me.dto.ViewStats;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,10 +32,10 @@ public class StatsClient {
         return Arrays.asList(array);
     }
 
-    public void hit(Stat stat) {
+    public void hit(StatDto statDto) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Stat> requestEntity = new HttpEntity<>(stat, headers);
-        rest.exchange(serverUrl + "/hit", HttpMethod.POST, requestEntity, Stat.class);
+        HttpEntity<StatDto> requestEntity = new HttpEntity<>(statDto, headers);
+        rest.exchange(serverUrl + "/hit", HttpMethod.POST, requestEntity, StatDto.class);
     }
 }
