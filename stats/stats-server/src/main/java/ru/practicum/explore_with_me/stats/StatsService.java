@@ -4,16 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.explore_with_me.dto.Stat;
+import ru.practicum.explore_with_me.model.Stat;
 import ru.practicum.explore_with_me.dto.ViewStats;
-import ru.practicum.explore_with_me.exception.WrongDateException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -32,61 +29,14 @@ public class StatsService {
     public List<ViewStats> getStatistic(String start, String end, List<String> uris, boolean unique) {
         LocalDateTime startDate = LocalDateTime.parse(start, formatter);
         LocalDateTime endDate = LocalDateTime.parse(end, formatter);
-
-        if (startDate.isAfter(endDate)) {
-            throw new WrongDateException("Дата начала не может быть позже даты окончания");
-        }
-
-        List<Stat> foundStats;
-        if (uris.isEmpty()) {
-            foundStats = repository.findByTimestampBetweenOrderByAppAscUriAsc(startDate, endDate);
+        if (unique) {
+            return repository.getUniqueViews(startDate, endDate, uris).stream()
+                    .map(StatsMapper::toViewStats)
+                    .collect(Collectors.toList());
         } else {
-            foundStats = repository.findByTimestampBetweenAndUriInOrderByAppAscUriAsc(startDate, endDate, uris);
+            return repository.getViews(startDate, endDate, uris).stream()
+                    .map(StatsMapper::toViewStats)
+                    .collect(Collectors.toList());
         }
-
-        List<ViewStats> stats = countHitsInFoundStats(foundStats, unique);
-        stats.sort((o1, o2) -> o2.getHits().compareTo(o1.getHits()));
-        return stats;
-    }
-
-    private List<ViewStats> countHitsInFoundStats(List<Stat> foundStats, boolean unique) {
-        List<ViewStats> stats = new ArrayList<>();
-        ViewStats viewStats = null;
-        String previousApp = "";
-        String previousUri = "";
-        Set<String> ip = new HashSet<>();
-
-        int hits = 0;
-        for (Stat stat : foundStats) {
-            if (needAddHits(stat, previousApp, previousUri, unique, ip)) {
-                ip.add(stat.getIp());
-                hits++;
-            } else {
-                ip.clear();
-                stats = addViewStatsToList(viewStats, stats, hits);
-                viewStats = new ViewStats(stat.getApp(), stat.getUri(), 0);
-                previousApp = stat.getApp();
-                previousUri = stat.getUri();
-                ip.add(stat.getIp());
-                hits = 1;
-            }
-        }
-        stats = addViewStatsToList(viewStats, stats, hits);
-        return stats;
-    }
-
-    private List<ViewStats> addViewStatsToList(ViewStats viewStats, List<ViewStats> stats, int hits) {
-        if (viewStats != null) {
-            viewStats.setHits(hits);
-            stats.add(viewStats);
-        }
-        return stats;
-    }
-
-    private boolean needAddHits(Stat stat, String previousApp, String previousUri, boolean unique, Set<String> ip) {
-        if (stat.getApp().equals(previousApp) && stat.getUri().equals(previousUri)) {
-            return (!ip.contains(stat.getIp()) || !unique);
-        }
-        return false;
     }
 }

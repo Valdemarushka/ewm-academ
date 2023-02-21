@@ -11,7 +11,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import ru.practicum.explore_with_me.dto.Stat;
+import ru.practicum.explore_with_me.model.Stat;
 import ru.practicum.explore_with_me.dto.ViewStats;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +23,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class StatsClient {
 
-    @Value("http://localhost:9090")
+    @Value("${stats-server.url}")
     private String serverUrl;
     private final RestTemplate rest = new RestTemplate();
 

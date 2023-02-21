@@ -1,8 +1,10 @@
 package ru.practicum.explore_with_me.stats;
 
 import org.springframework.stereotype.Component;
-import ru.practicum.explore_with_me.dto.Stat;
 import ru.practicum.explore_with_me.dto.StatDto;
+import ru.practicum.explore_with_me.dto.ViewStats;
+import ru.practicum.explore_with_me.model.Stat;
+import ru.practicum.explore_with_me.model.ViewStatsInt;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,4 +30,7 @@ public class StatsMapper {
     }
 
 
+    public static ViewStats toViewStats(ViewStatsInt viewStats) {
+        return new ViewStats(viewStats.getApp(), viewStats.getUri(), viewStats.getHits());
+    }
 }
