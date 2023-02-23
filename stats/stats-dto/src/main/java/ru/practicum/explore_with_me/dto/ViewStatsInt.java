@@ -1,4 +1,4 @@
-package ru.practicum.explore_with_me.model;
+package ru.practicum.explore_with_me.dto;
 
 public interface ViewStatsInt {
     String getApp();

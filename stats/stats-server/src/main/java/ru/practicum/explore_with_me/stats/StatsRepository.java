@@ -2,8 +2,8 @@ package ru.practicum.explore_with_me.stats;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import ru.practicum.explore_with_me.dto.ViewStatsInt;
 import ru.practicum.explore_with_me.model.Stat;
-import ru.practicum.explore_with_me.model.ViewStatsInt;
 
 import java.time.LocalDateTime;
 import java.util.List;
