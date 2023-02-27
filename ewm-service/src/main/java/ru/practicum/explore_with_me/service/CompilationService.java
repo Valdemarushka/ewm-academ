@@ -9,17 +9,14 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explore_with_me.dto.compilationDto.NewCompilationDto;
-import ru.practicum.explore_with_me.dto.eventDto.EventShortDto;
 import ru.practicum.explore_with_me.exception.IncorrectCompilationBodyException;
 import ru.practicum.explore_with_me.exception.NotFoundException;
-import ru.practicum.explore_with_me.mapper.EventMapper;
 import ru.practicum.explore_with_me.model.Compilation;
 import ru.practicum.explore_with_me.model.Event;
 import ru.practicum.explore_with_me.repository.CompilationRepository;
 import ru.practicum.explore_with_me.repository.EventRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.springframework.data.jpa.domain.Specification.where;
 
@@ -50,8 +47,7 @@ public class CompilationService {
         compilation.setEventsIds(compilationDto.getEvents());
 
         if (!compilationDto.getEvents().isEmpty()) {
-            List<EventShortDto> eventsInCompilation = fillEvents(compilationDto.getEvents())
-                    .stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
+            List<Event> eventsInCompilation = fillEvents(compilationDto.getEvents());
             compilation.setEvents(eventsInCompilation);
         } else {
             compilation.setEvents(new ArrayList<>());
@@ -71,8 +67,7 @@ public class CompilationService {
         Compilation compilation = foundCompilation.get();
 
         if (compilation.getEventsIds() != null && !compilation.getEventsIds().isEmpty()) {
-            List<EventShortDto> eventsInCompilation = fillEvents(compilation.getEventsIds())
-                    .stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
+            List<Event> eventsInCompilation = fillEvents(compilation.getEventsIds());
             compilation.setEvents(eventsInCompilation);
         } else {
             compilation.setEventsIds(new HashSet<>());
@@ -94,8 +89,7 @@ public class CompilationService {
 
         for (Compilation compilation : foundCompilations) {
             if (compilation.getEventsIds() != null && !compilation.getEventsIds().isEmpty()) {
-                List<EventShortDto> eventsInCompilation = fillEvents(compilation.getEventsIds())
-                        .stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
+                List<Event> eventsInCompilation = fillEvents(compilation.getEventsIds());
                 compilation.setEvents(eventsInCompilation);
             } else {
                 compilation.setEventsIds(new HashSet<>());
@@ -130,8 +124,7 @@ public class CompilationService {
         compilation.setEventsIds(new HashSet<>());
 
         if (!compilationDto.getEvents().isEmpty()) {
-            List<EventShortDto> eventsInCompilation = fillEvents(compilationDto.getEvents())
-                    .stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
+            List<Event> eventsInCompilation = fillEvents(compilationDto.getEvents());
             compilation.setEvents(eventsInCompilation);
             compilation.setEventsIds(compilationDto.getEvents());
         } else {

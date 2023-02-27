@@ -55,7 +55,7 @@ public class RequestService {
         }
 
         int confirmedRequests = repository.findByEventIdAndStatus(eventId, EventRequestState.CONFIRMED).size();
-        int participantLimit = event.getParticipantLimit() == null ? 0 : event.getParticipantLimit();
+        int participantLimit = event.getParticipantLimit();
         if (confirmedRequests >= participantLimit) {
             throw new EventStatusException(String.format("Превышен лимит запроса события %d.", eventId),
                     "Нарушено ограничение целостности.");

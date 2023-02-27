@@ -176,16 +176,13 @@ public class EventService {
         LocalDateTime startDate = (rangeStart == null || rangeStart.isBlank()) ? null : LocalDateTime.parse(rangeStart, formatter);
         LocalDateTime endDate = (rangeEnd == null || rangeEnd.isBlank()) ? null : LocalDateTime.parse(rangeEnd, formatter);
 
-        String[] states = {EventState.PENDING.toString()};
-
         Page<Event> events = repository.findAll(
                 where(hasAnnotationEqualText(text))
                         .and(hasCategoriesIn(categories))
                         .and(isPaid(paid))
                         .and(hasStartAfterNow(startDate))
                         .and(hasEndBefore(endDate))
-                        .and(hasAvailable(onlyAvailable))
-                        .and(hasStatesIn(states)),
+                        .and(hasAvailable(onlyAvailable)),
                 PageRequest.of(from / size, size, Sort.by(sortProperty))
         );
 
