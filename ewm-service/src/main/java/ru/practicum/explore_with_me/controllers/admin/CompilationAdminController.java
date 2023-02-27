@@ -31,5 +31,4 @@ public class CompilationAdminController {
         compilationService.delete(compId);
     }
 
-    //проверка на глюк сервера
 }

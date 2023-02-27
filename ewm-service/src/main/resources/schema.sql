@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS categories
 CREATE TABLE IF NOT EXISTS events
 (
     id                 BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    annotation         VARCHAR(255)                NOT NULL,
-    description        VARCHAR(255),
+    annotation         VARCHAR                     NOT NULL,
+    description        VARCHAR,
     title              VARCHAR(1024)               NOT NULL,
     state              VARCHAR(50),
     created_on         TIMESTAMP WITHOUT TIME ZONE,
