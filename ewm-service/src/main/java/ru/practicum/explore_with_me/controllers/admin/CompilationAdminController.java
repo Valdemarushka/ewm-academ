@@ -30,4 +30,6 @@ public class CompilationAdminController {
     public void delete(@PathVariable Integer compId) {
         compilationService.delete(compId);
     }
+
+    //проверка на глюк сервера
 }
