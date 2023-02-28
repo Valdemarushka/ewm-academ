@@ -92,13 +92,13 @@ public class ErrorHandler {
 
 
     @ExceptionHandler(ValidationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleValidationException(final ValidationException e) {
         return new ApiError(
                 "Неправильно сделанный запрос.",
                 e.getMessage(),
                 LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase()
+                HttpStatus.CONFLICT.getReasonPhrase()
         );
     }
 
