@@ -17,10 +17,7 @@ import ru.practicum.explore_with_me.dto.StatDto;
 import ru.practicum.explore_with_me.dto.ViewStats;
 import ru.practicum.explore_with_me.exception.*;
 import ru.practicum.explore_with_me.model.*;
-import ru.practicum.explore_with_me.repository.CategoryRepository;
-import ru.practicum.explore_with_me.repository.EventRepository;
-import ru.practicum.explore_with_me.repository.RequestRepository;
-import ru.practicum.explore_with_me.repository.UserRepository;
+import ru.practicum.explore_with_me.repository.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -46,6 +43,8 @@ public class EventService {
     private final RequestRepository requestRepository;
 
     private final StatsClient statsClient;
+
+    private final CommentRepository commentRepository;
 
     @Value("${stats-server.url}")
     private String serverUrl;
@@ -209,6 +208,8 @@ public class EventService {
                     events.stream().map(Event::getId).collect(Collectors.toList()),
                     EventRequestState.CONFIRMED
             );
+            List<Comment> comments = commentRepository.findAllByEventIdIn(
+                    events.stream().map(Event::getId).collect(Collectors.toList()));
             for (Event event : events) {
                 if (foundCategories.containsKey(event.getCategoryId())) {
                     event.setCategory(foundCategories.get(event.getCategoryId()));
@@ -216,6 +217,7 @@ public class EventService {
                 if (foundInitiators.containsKey(event.getInitiatorId())) {
                     event.setInitiator(foundInitiators.get(event.getInitiatorId()));
                 }
+                fillCommentsInEvent(event, comments);
                 long confirmedRequests = requests.stream().filter(r -> r.getEventId() == event.getId()).count();
                 event.setConfirmedRequests((int) confirmedRequests);
                 if (onlyAvailable != null && onlyAvailable) {
@@ -327,6 +329,8 @@ public class EventService {
 
         fillConfirmedRequestsInEvent(event);
 
+        fillCommentsInEvent(event, commentRepository.findAllByEventIdIn(List.of(event.getId())));
+
         fillStateInUpdatedEvent(event, eventPrevious, stateAction);
 
         event.setDescription(event.getDescription() == null ? eventPrevious.getDescription() : event.getDescription());
@@ -377,6 +381,17 @@ public class EventService {
                 event.getId(), EventRequestState.CONFIRMED
         ).size();
         event.setConfirmedRequests(confirmedRequests);
+    }
+
+    private void fillCommentsInEvent(Event event, List<Comment> comments) {
+        List<Comment> commentList = comments.stream()
+                .filter(c -> c.getEventId().equals(event.getId()))
+                .collect(Collectors.toList());
+        event.setComments(commentList);
+        List<Integer> commentIds = commentList.stream()
+                .map(Comment::getId)
+                .collect(Collectors.toList());
+        event.setCommentsIds(commentIds);
     }
 
     private void fillStateInUpdatedEvent(Event event, Event eventPrevious, String stateAction) {
@@ -477,5 +492,62 @@ public class EventService {
 
         statsClient.hit(statDto);
 
+    }
+
+    @Transactional
+    public Comment addComment(Integer userId, Integer eventId, Comment comment) {
+        checkUserForComment(userId, eventId, comment);
+        comment.setCreated(LocalDateTime.now());
+        return commentRepository.save(comment);
+    }
+
+    @Transactional
+    public Comment putComment(Integer userId, Integer eventId, Integer commentId, Comment comment) {
+        Comment previousComment = findComment(commentId);
+
+        comment.setId(commentId);
+        comment.setEventId(comment.getEventId() == null ? previousComment.getEventId() : comment.getEventId());
+        comment.setAuthorId(comment.getAuthorId() == null ? previousComment.getAuthorId() : comment.getAuthorId());
+        comment.setCreated(comment.getCreated() == null ? previousComment.getCreated() : comment.getCreated());
+        comment.setText(comment.getText() == null ? previousComment.getText() : comment.getText());
+
+        checkUserForComment(userId, eventId, comment);
+
+        return commentRepository.save(comment);
+    }
+
+    @Transactional
+    public void deleteComment(Integer userId, Integer eventId, Integer commentId) {
+        checkUserForComment(userId, eventId, findComment(commentId));
+        commentRepository.deleteById(commentId);
+    }
+
+    private Comment findComment(Integer commentId) {
+        Optional<Comment> foundComment = commentRepository.findById(commentId);
+        if (foundComment.isEmpty()) {
+            throw new NotFoundException(String.format("Comment with id=%d was not found", commentId),
+                    "The required object was not found.");
+        }
+        return foundComment.get();
+    }
+
+    private void checkUserForComment(Integer userId, Integer eventId, Comment comment) {
+        Optional<User> foundUser = userRepository.findById(userId);
+        if (foundUser.isEmpty()) {
+            throw new NotFoundException(String.format("User with id=%d was not found", userId),
+                    "The required object was not found.");
+        }
+
+        Optional<Event> foundEvent = repository.findById(eventId);
+        if (foundEvent.isEmpty()) {
+            throw new NotFoundException(String.format("Event with id=%d was not found", eventId),
+                    "The required object was not found.");
+        }
+
+        if (!userId.equals(comment.getAuthorId())
+                && !userId.equals(foundEvent.get().getInitiatorId())) {
+            throw new EventOwnerException(String.format("User with id=%d is not owner for event or comment", userId),
+                    "For the requested operation the conditions are not met.");
+        }
     }
 }
