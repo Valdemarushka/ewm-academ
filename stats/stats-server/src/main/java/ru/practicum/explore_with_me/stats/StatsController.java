@@ -2,6 +2,7 @@ package ru.practicum.explore_with_me.stats;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explore_with_me.dto.StatDto;
 import ru.practicum.explore_with_me.dto.ViewStats;
@@ -29,6 +30,7 @@ public class StatsController {
         return statsService.getStatistic(start, end, uris, unique);
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/hit")
     public void addStat(@RequestBody StatDto statDto) {
         log.info("Create statHit {}", statDto);

@@ -20,7 +20,8 @@ services:
     depends_on:
       - ewm-db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5433/explore
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/explore
+      - STATS_SERVER_URL=http://stats-server:9090
 
   stats-db:
     image: postgres:13.7-alpine
